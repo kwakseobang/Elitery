@@ -38,8 +38,8 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Column(name = "social_login_id", unique = true, nullable = false)
-    private String socialLoginId;
+    @Column(name = "social_id", unique = true, nullable = false)
+    private String socialId;
 
     @Column(name = "social_type", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -55,7 +55,7 @@ public class Member extends BaseEntity {
         String nickname,
         String imageUrl,
         Role role,
-        String socialLoginId,
+        String socialId,
         SocialType socialType,
         String introduction
     ) {
@@ -63,8 +63,24 @@ public class Member extends BaseEntity {
         this.nickname = nickname;
         this.imageUrl = imageUrl;
         this.role = role;
-        this.socialLoginId = socialLoginId;
+        this.socialId = socialId;
         this.socialType = socialType;
+        this.introduction = introduction;
+    }
+
+    public void updateEmail(String email) {
+        this.email = email;
+    }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updateProfileImage(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public void updateIntroduction(String introduction) {
         this.introduction = introduction;
     }
 

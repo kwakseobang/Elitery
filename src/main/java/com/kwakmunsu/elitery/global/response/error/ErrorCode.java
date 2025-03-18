@@ -40,6 +40,7 @@ public enum ErrorCode implements StatusCode {
     // <=============== JWT ===============>
     TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED.value(), ErrorMessage.TOKEN_EXPIRED.getMessage()),
     TOKEN_ERROR(HttpStatus.UNAUTHORIZED.value(), ErrorMessage.TOKEN_ERROR.getMessage()),
+    NOT_FOUND_TOKEN(HttpStatus.NOT_FOUND.value(), ErrorMessage.NOT_FOUND_TOKEN.getMessage()),
     BAD_REQUEST_TOKEN(HttpStatus.BAD_REQUEST.value(), ErrorMessage.BAD_REQUEST_TOKEN.getMessage()),
     TOKEN_IS_BLACKLIST(
         HttpStatus.UNAUTHORIZED.value(),
