@@ -7,8 +7,8 @@ public enum TokenType {
 
     AUTHORIZATION_HEADER("Authorization"),
     BEARER_PREFIX("Bearer "),
-    ACCESS("access"),
-    REFRESH("refresh"),
+    ACCESS("accessToken"),
+    REFRESH("refreshToken"),
     ;
 
     private final String value;
