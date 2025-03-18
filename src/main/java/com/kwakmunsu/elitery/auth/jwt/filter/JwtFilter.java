@@ -27,13 +27,15 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
     private final JwtErrorResponder jwtErrorResponder;
     private static final List<String> EXCLUDE_PATHS = List.of(
-        "/swagger/**", "/swagger-ui/**", "/v3/api-docs/**", "/auth/**"
+        "/",
+        "/oauth2/**", "/swagger/**", "/swagger-ui/**", "/v3/api-docs/**", "/auth/**"
     );
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
+
         return EXCLUDE_PATHS.stream()
             .anyMatch(exclude -> pathMatcher.match(exclude, path));
     }
@@ -53,8 +55,10 @@ public class JwtFilter extends OncePerRequestFilter {
             jwtErrorResponder.sendErrorResponse(response, ErrorCode.TOKEN_ERROR);
             return;
         }
+
         Authentication authentication = jwtProvider.getAuthentication(token);
         SecurityContextHolder.getContext().setAuthentication(authentication);
+
         filterChain.doFilter(request, response);
     }
 
@@ -63,6 +67,7 @@ public class JwtFilter extends OncePerRequestFilter {
         if (bearerToken != null && bearerToken.startsWith(BEARER_PREFIX.getValue())) {
             return bearerToken.substring(BEARER_PREFIX.getValue().length());
         }
+
         return null;
     }
 
