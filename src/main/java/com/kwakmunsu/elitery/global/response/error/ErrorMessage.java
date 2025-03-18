@@ -26,6 +26,7 @@ public enum ErrorMessage {
     //  <=============== JWT ===============>
     TOKEN_EXPIRED("ERROR - JWT 토큰 만료 에러"),
     TOKEN_ERROR("ERROR - 잘못된 JWT 토큰 에러"),
+    NOT_FOUND_TOKEN("ERROR - 토큰을 찾을 수 없습니다."),
     BAD_REQUEST_TOKEN("ERROR - 잘못된 토큰 요청 에러"),
     TOKEN_IS_BLACKLIST("ERROR - 폐기된 토큰"),
     TOKEN_HASH_NOT_SUPPORTED("ERROR - 지원하지 않는 형식의 토큰"),
