@@ -31,4 +31,8 @@ public class RefreshToken {
         this.role = role;
     }
 
+    public boolean isEqualToRefreshToken(String targetToken) {
+        return refreshToken.equals(targetToken);
+    }
+
 }

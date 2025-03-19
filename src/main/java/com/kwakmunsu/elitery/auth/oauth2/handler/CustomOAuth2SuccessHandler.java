@@ -41,8 +41,6 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
         response.addCookie(createCookie(REFRESH.getValue(), memberTokens.refreshToken()));
         String redirectUrl = createRedirectUrl(memberTokens.accessToken());
         log.info("OAuth2 login 성공 :" + oAuth2Member.getName());
-        log.info("OAuth2 login at :" + memberTokens.accessToken());
-        log.info("OAuth2 login rt :" + memberTokens.refreshToken());
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
 

@@ -4,8 +4,7 @@ import com.kwakmunsu.elitery.global.response.error.ErrorCode;
 
 public class UnAuthenticationException extends EliteryException {
 
-    public UnAuthenticationException(
-        ErrorCode errorCode) {
+    public UnAuthenticationException(ErrorCode errorCode) {
         super(errorCode);
     }
 
