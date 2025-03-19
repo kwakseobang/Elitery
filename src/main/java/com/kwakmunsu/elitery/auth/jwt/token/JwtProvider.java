@@ -1,15 +1,19 @@
 package com.kwakmunsu.elitery.auth.jwt.token;
 
 
+import static com.kwakmunsu.elitery.auth.jwt.common.TokenExpiration.ACCESS_TOKEN;
+import static com.kwakmunsu.elitery.auth.jwt.common.TokenExpiration.REFRESH_TOKEN;
+import static com.kwakmunsu.elitery.auth.jwt.common.TokenType.ACCESS;
 import static com.kwakmunsu.elitery.auth.jwt.common.TokenType.AUTHORIZATION_HEADER;
+import static com.kwakmunsu.elitery.auth.jwt.common.TokenType.REFRESH;
 
 import com.kwakmunsu.elitery.auth.jwt.dto.MemberTokens;
 import com.kwakmunsu.elitery.auth.jwt.entity.RefreshToken;
+import com.kwakmunsu.elitery.auth.jwt.repository.RefreshTokenRepository;
 import com.kwakmunsu.elitery.global.response.error.ErrorCode;
 import com.kwakmunsu.elitery.member.entity.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -30,17 +34,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtProvider {
 
-    private final JwtGenerator jwtGenerator;
-    private final JwtCleaner jwtCleaner;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final SecretKey secretKey;
+    private static final String CATEGORY_KEY = "category";
+
 
     public JwtProvider(
-        JwtGenerator jwtGenerator,
-        JwtCleaner jwtCleaner,
+        RefreshTokenRepository refreshTokenRepository,
         @Value("${spring.jwt.secretKey}") String key
     ) {
-        this.jwtGenerator = jwtGenerator;
-        this.jwtCleaner = jwtCleaner;
+        this.refreshTokenRepository = refreshTokenRepository;
         this.secretKey = new SecretKeySpec(
             key.getBytes(StandardCharsets.UTF_8),
             Jwts.SIG.HS256
@@ -51,29 +54,41 @@ public class JwtProvider {
     }
 
     public MemberTokens createTokens(Long memberId, Role role) {
-        String accessToken = jwtGenerator.createAccessToken(memberId, role, secretKey);
-        String refreshToken = jwtGenerator.createRefreshToken(secretKey);
-        jwtGenerator.saveRefreshToken(memberId, refreshToken, role);
+        String accessToken = createAccessToken(memberId, role);
+        String refreshToken = createRefreshToken();
+        saveRefreshToken(memberId, refreshToken, role);
         return new MemberTokens(accessToken, refreshToken);
     }
 
-    public MemberTokens reissueToken(String refreshToken) {
-        if (!validateToken(refreshToken)) {
-            throw new JwtException(ErrorCode.TOKEN_ERROR.getMessage() + refreshToken);
-        }
-        RefreshToken storedToken = jwtGenerator.getRefreshToken(refreshToken);
-        Long memberId = storedToken.getMemberId();
-        jwtCleaner.deleteRefreshToken(memberId);
+    private String createAccessToken(Long memberId, Role role) {
+        Date date = new Date();
+        Date validity = new Date(date.getTime() + ACCESS_TOKEN.getExpirationTime());
+        return Jwts.builder()
+            .subject(String.valueOf(memberId))
+            .claim(CATEGORY_KEY, ACCESS.getValue())
+            .claim(AUTHORIZATION_HEADER.getValue(), role)
+            .expiration(validity)
+            .signWith(this.secretKey)
+            .compact();
+    }
 
-        if (!refreshToken.equals(storedToken.getRefreshToken())) {
-            throw new JwtException(ErrorCode.TOKEN_ERROR.getMessage() + refreshToken);
-        }
-        Role role = storedToken.getRole();
-        String newAccessToken = jwtGenerator.createAccessToken(memberId, role, secretKey);
-        String newRefreshToken = jwtGenerator.createRefreshToken(secretKey);
-        jwtGenerator.saveRefreshToken(memberId, newRefreshToken, role);
+    private String createRefreshToken() {
+        Date date = new Date();
+        Date validity = new Date(date.getTime() + REFRESH_TOKEN.getExpirationTime());
+        return Jwts.builder()
+            .claim(CATEGORY_KEY, REFRESH.getValue())
+            .expiration(validity)
+            .signWith(this.secretKey)
+            .compact();
+    }
 
-        return new MemberTokens(newAccessToken, newRefreshToken);
+    private void saveRefreshToken(Long memberId, String refreshToken, Role role) {
+        RefreshToken newRefreshToken = RefreshToken.builder()
+            .memberId(memberId)
+            .refreshToken(refreshToken)
+            .role(role)
+            .build();
+        refreshTokenRepository.save(newRefreshToken);
     }
 
     public Authentication getAuthentication(String token) {
@@ -87,13 +102,18 @@ public class JwtProvider {
         );
     }
 
+    private Role getAuthority(String token) {
+        return getClaimsFromToken(token)
+            .get(AUTHORIZATION_HEADER.getValue(), Role.class);
+    }
+
     public boolean validateToken(String token) {
         try {
             Claims claims = getClaimsFromToken(token);
             validateExpiredToken(claims);
             return true;
         } catch (SecurityException | MalformedJwtException e) {
-            log.warn(ErrorCode.TOKEN_ERROR.getMessage() + token);
+            log.warn(ErrorCode.INVALID_TOKEN.getMessage() + token);
         } catch (ExpiredJwtException e) {
             log.warn(ErrorCode.TOKEN_EXPIRED.getMessage() + token);
         } catch (UnsupportedJwtException e) {
@@ -110,11 +130,6 @@ public class JwtProvider {
             .build()
             .parseSignedClaims(token)
             .getPayload();
-    }
-
-    private Role getAuthority(String token) {
-        return getClaimsFromToken(token)
-            .get(AUTHORIZATION_HEADER.getValue(), Role.class);
     }
 
     private void validateExpiredToken(Claims claims) {
