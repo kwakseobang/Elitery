@@ -52,7 +52,7 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
         if (jwtProvider.validateToken(token)) {
-            jwtErrorResponder.sendErrorResponse(response, ErrorCode.TOKEN_ERROR);
+            jwtErrorResponder.sendErrorResponse(response, ErrorCode.INVALID_TOKEN);
             return;
         }
 
