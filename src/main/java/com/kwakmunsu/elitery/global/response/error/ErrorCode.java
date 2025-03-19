@@ -20,22 +20,27 @@ public enum ErrorCode implements StatusCode {
         ErrorMessage.BAD_REQUEST_PASSWORD.getMessage()
     ),
     DUPLICATE_USERNAME(
-        HttpStatus.BAD_REQUEST.value(),
+        HttpStatus.CONFLICT.value(),
         ErrorMessage.DUPLICATE_USERNAME.getMessage()
     ),
     DUPLICATE_NICKNAME(
-        HttpStatus.BAD_REQUEST.value(),
+        HttpStatus.CONFLICT.value(),
         ErrorMessage.DUPLICATE_NICKNAME.getMessage()
     ),
+
     // <=============== POST ===============>
     NOT_FOUND_POST(HttpStatus.NOT_FOUND.value(), ErrorMessage.NOT_FOUND_DIARY.getMessage()),
     BAD_REQUEST_POST(HttpStatus.BAD_REQUEST.value(), ErrorMessage.BAD_REQUEST_DIARY.getMessage()),
 
-    // <=============== SERIES ===============>
-    NOT_FOUND_SERIES(HttpStatus.NOT_FOUND.value(), ErrorMessage.NOT_FOUND_CATEGORY.getMessage()),
-    BAD_REQUEST_SERIES(HttpStatus.BAD_REQUEST.value(),
+    // <=============== CATEGORY ===============>
+    NOT_FOUND_CATEGORY(HttpStatus.NOT_FOUND.value(), ErrorMessage.NOT_FOUND_CATEGORY.getMessage()),
+    BAD_REQUEST_CATEGORY(
+        HttpStatus.BAD_REQUEST.value(),
         ErrorMessage.BAD_REQUEST_CATEGORY.getMessage()),
-    DUPLICATE_SERIES(HttpStatus.BAD_REQUEST.value(), ErrorMessage.DUPLICATE_CATEGORY.getMessage()),
+    DUPLICATE_CATEGORY(
+        HttpStatus.CONFLICT.value(),
+        ErrorMessage.DUPLICATE_CATEGORY.getMessage()
+    ),
 
     // <=============== JWT ===============>
     TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED.value(), ErrorMessage.TOKEN_EXPIRED.getMessage()),
