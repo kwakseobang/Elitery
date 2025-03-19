@@ -26,7 +26,7 @@ public class RefreshTokenRepositoryImpl implements RefreshTokenRepository {
     @Override
     public RefreshToken findByRefreshToken(String refreshToken) {
         return refreshTokenJpaRepository.findByRefreshToken(refreshToken)
-            .orElseThrow(() -> new NotFoundException(ErrorCode.BAD_REQUEST_TOKEN));
+            .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_TOKEN));
     }
 
 }
