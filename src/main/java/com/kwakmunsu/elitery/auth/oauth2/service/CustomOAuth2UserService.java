@@ -61,7 +61,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     private Member findOrCreateMember(OAuth2UserInfo userInfo, SocialType socialType) {
-        return memberReader.getMember(userInfo.getSocialId())
+        return memberReader.read(userInfo.getSocialId())
             .map(existingMember -> updateMember(existingMember, userInfo))
             .orElseGet(() -> memberAppender.create(userInfo, socialType));
     }
